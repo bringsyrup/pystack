@@ -1,2 +1,2 @@
 #! /bin/bash
-ln -P pystack.sh /usr/bin/pystack
+cp pystack.sh /usr/bin/pystack
