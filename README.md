@@ -5,5 +5,7 @@ pystack is a cli for automatically finding the best stack overflow answers to yo
 
 ##usage
 to get pystack on your linux system, clone this repo and follow the code below:
-	$ ./configure.sh 	# this will hardlink pystack.sh to /usr/bin/pystack
-	$ pystack myfile.py
+```sh
+$ ./configure.sh 	# this will hardlink pystack.sh to /usr/bin/pystack
+$ pystack myfile.py
+```
