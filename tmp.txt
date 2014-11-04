@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "in.py", line 4, in <module>
+    print hello_world[i]
+IndexError: string index out of range
