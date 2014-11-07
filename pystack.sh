@@ -1,4 +1,8 @@
 #! /bin/bash
 PYSCRIPT=$1
-python $PYSCRIPT 2>&1 | python out.py
-exit 0
+if [$PYSCRIPT]; then
+    python $PYSCRIPT 2>&1 | python out.py
+else 
+    python
+fi
+    exit 0
