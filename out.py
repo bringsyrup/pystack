@@ -1,9 +1,6 @@
-#import sys
-#print " ".join(sys.argv)
+import sys
 
-errors = []
-with open(".out.txt~", 'r') as outFile:
-    for line in outFile:
-        errors.append(line)
-
-print errors
+stderr = []
+for line in sys.stdin.readlines():
+    stderr.append(line)
+print stderr
