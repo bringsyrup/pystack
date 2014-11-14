@@ -1,0 +1,9 @@
+#! /bin/bash
+PYSCRIPT=$1
+if [ $PYSCRIPT ]
+then
+    (python $PYSCRIPT 2>&1 | python /usr/lib/pystackpy/pystack.py)
+else 
+    python
+fi
+    exit 0
