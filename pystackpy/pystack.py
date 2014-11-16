@@ -27,7 +27,7 @@ def searchSO(term1,term2, limit):
     qs = so.search_advanced(q=term1, tagged=['python'], body=term2)
     #for q in qs:
     for i in range(limit):
-        print qs[i].id, qs[i].title#, qs[i].include_body
+        print qs[i].id, qs[i].title, so.question(qs[i].id, body=True).body#, qs[i].include_body
 
 def getSO(limit):
     searchSO(getErrs(), 'tuple', limit)
