@@ -831,6 +831,8 @@ unlike on the actual site, you will receive an error rather than a redirect to t
 
     def search_advanced(self, **kw):
         kw['body'] = None
+        #print kw['body']
+        #print self.include_body
         kw['comments'] = None
         return self.build('search/advanced', Question, 'questions', kw)
 
