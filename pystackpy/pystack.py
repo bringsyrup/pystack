@@ -35,20 +35,13 @@ def searchSO(term1,term2, limit):
     user_api_key = '5se*FOHNKmiw3H9miisy8w(('
     so = stackexchange.Site(stackexchange.StackOverflow, app_key = user_api_key, impose_throttling = False)
     so.throttle_stop = False
-    qs = so.search_advanced(q=term1, tagged=['python'], body=term2)
-    expanded_q = []
-    for q in qs:
-        r = so.question(q.id, body = True, filter = "!b0OfMwwD.s*79x") 
-        expanded_q.append(r)
+    qs = so.search_advanced(q=term1, tagged=['python'], body=term2, accepted=True)
+    #     r = so.question(q.id, body = True, filter = "!b0OfMwwD.s*79x") 
+
+    ql = list(qs)
+    ql.sort(key=lambda x: x.score, reverse=True)
     for i in range(limit):
-        try:
-            q = so.question(qs[i].id, body=True, filter = "!b0OfMwwD.s*79x")
-        except IndexError:
-            break
-        expanded_q.append(q)
-    expanded_q.sort(key=lambda x: x.up_vote_count, reverse=True)
-    for i in range(limit):
-        print expanded_q[i].url
+        print ql[i].url
 def getSO(limit):
     searchSO(getErrs(), 'tuple', limit)
 
