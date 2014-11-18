@@ -1,9 +1,10 @@
 #! /bin/bash
 PYSCRIPT=$1
+TERM=$2
 if [ $PYSCRIPT ]
 then
     cat $PYSCRIPT > pystack.txt.tmp
-    (python $PYSCRIPT 2>&1 | python /usr/lib/pystackpy/pystack.py)
+    (python $PYSCRIPT 2>&1 | python /usr/lib/pystackpy/pystack.py "$TERM")
 else 
     python
 fi
