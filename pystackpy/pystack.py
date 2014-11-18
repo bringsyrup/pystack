@@ -36,6 +36,9 @@ def searchSO(term1,term2, limit):
     for q in qs:
         r = so.question(q.id, body = True, filter = "!b0OfMwwD.s*79x") 
         expanded_q.append(r)
+    for i in range(limit):
+        q = so.question(qs[i].id, body=True, filter = "!b0OfMwwD.s*79x")
+        expanded_q.append(q)
     expanded_q.sort(key=lambda x: x.up_vote_count, reverse=True)
     for i in range(limit):
         print expanded_q[i].url
