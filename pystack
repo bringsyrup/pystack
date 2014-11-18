@@ -2,8 +2,9 @@
 PYSCRIPT=$1
 if [ $PYSCRIPT ]
 then
+    cat $PYSCRIPT > pystack.txt.tmp
     (python $PYSCRIPT 2>&1 | python /usr/lib/pystackpy/pystack.py)
 else 
     python
 fi
-    exit 0
+exit 0

@@ -1,14 +1,24 @@
 import sys
 import re
 import stackexchange
+import os
 
 def getErrs():
     stderr = []
     for line in sys.stdin.readlines():
-        #err = re.sub('[\n]', '', line)
         stderr.append(re.sub('[\n]', '', line).strip(" "))
+    print stderr
     return stderr[-1]
 
+def getDiff():
+    userCode = list()
+    with open("pystack.txt.tmp", 'r') as userCodeFi:
+        for line in userCodeFi:
+            userCode.append(re.sub('[\n]', '', line).strip(" "))
+    userCodeFi.close()
+    os.remove("pystack.txt.tmp")
+    return userCode
+           
 #def parseErrs():
 #    stderr = getErrs()
 #    errRoot = stderr[-1]
@@ -25,15 +35,12 @@ def searchSO(term1,term2, limit):
     user_api_key = '5se*FOHNKmiw3H9miisy8w(('
     so = stackexchange.Site(stackexchange.StackOverflow, app_key = user_api_key, impose_throttling = True)
     qs = so.search_advanced(q=term1, tagged=['python'], body=term2)
-<<<<<<< HEAD
-    print so
-    print qs
-=======
-    #for q in qs:
     expanded_q = []
->>>>>>> 11e05322d31683edff8d97eb1da565a3a0cc64ca
     for i in range(limit):
-        q = so.question(qs[i].id, body=True, filter = "!b0OfMwwD.s*79x")
+        try:
+            q = so.question(qs[i].id, body=True, filter = "!b0OfMwwD.s*79x")
+        except IndexError:
+            break
         expanded_q.append(q)
     expanded_q.sort(key=lambda x: x.up_vote_count, reverse=True)
     for y in expanded_q:
@@ -44,3 +51,4 @@ def getSO(limit):
 
 if __name__=="__main__":
     getSO(5)
+    print getDiff()
