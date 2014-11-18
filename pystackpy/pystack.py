@@ -25,7 +25,8 @@ def searchSO(term1,term2, limit):
     user_api_key = '5se*FOHNKmiw3H9miisy8w(('
     so = stackexchange.Site(stackexchange.StackOverflow, app_key = user_api_key, impose_throttling = True)
     qs = so.search_advanced(q=term1, tagged=['python'], body=term2)
-    #for q in qs:
+    print so
+    print qs
     for i in range(limit):
         print qs[i].id, qs[i].title, so.question(qs[i].id, body=True).body#, qs[i].include_body
 
