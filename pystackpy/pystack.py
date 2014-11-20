@@ -10,13 +10,11 @@ def getErrs():
         stderr.append(re.sub('[\n]', '', line).strip(" "))
     return stderr[-1]
 
-def getDiff():
-    userCode = list()
-    with open("pystack.txt.tmp", 'r') as userCodeFi:
-        for line in userCodeFi:
-            userCode.append(re.sub('[\n]', '', line).strip(" "))
+def getDiff(temp_filename):
+    with open(temp_filename, 'r') as userCodeFi:
+        userCode = [re.sub('[\n]', '', line).strip(" ") for line in userCodeFi]
     userCodeFi.close()
-    os.remove("pystack.txt.tmp")
+    os.remove(temp_filename)
     return userCode
            
 #def parseErrs():
@@ -50,6 +48,11 @@ def getSO(limit, term2):
 
 if __name__=="__main__":
     parser = argparse.ArgumentParser(description='pystack')
+    parser.add_argument('temp_file',
+            type = str, 
+            help = 'filename for the temp file used to get users python code'
+            )
+
     parser.add_argument('search_term',
             type = str, 
             nargs = '?',
@@ -58,5 +61,5 @@ if __name__=="__main__":
     args = parser.parse_args()
     getSO(5, args.search_term)
     
-    getDiff()
+    getDiff(args.temp_file)
 
