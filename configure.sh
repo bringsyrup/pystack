@@ -51,7 +51,7 @@ if [ \"\$PYSCRIPT\" ]; then
 else 
     python
 fi
-exit 0" > pystack && echo "propogating pystack shell script..."
+exit 0" > pystack && echo "populating pystack shell script..."
 
 if [ ! -x pystack ]; then
     chmod u+x pystack && echo "making pystack executable..."
