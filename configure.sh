@@ -1,19 +1,19 @@
 #! /bin/bash
 
-pyflag='--pypath'
-libflag='--libpath'
-binflag='--binpath'
-fileflag='--filename'
+pyflag='--pypath='
+libflag='--libpath='
+binflag='--binpath='
+fileflag='--filename='
 
 for arg in "$@"; do
     if [ "${arg:0:${#pyflag}}" == ${pyflag} ]; then
-        PYPATH=${arg:9}
+        PYPATH=${arg:${#pyflag}}
     elif [ "${arg:0:${#libflag}}" == ${libflag} ]; then
-        LIBPATH=${arg:10}
+        LIBPATH=${arg:${#libflag}}
     elif [ "${arg:0:${#binflag}}" == ${binflag} ]; then
-        BINPATH=${arg:10}
+        BINPATH=${arg:${#binflag}}
     elif [ "${arg:0:${#fileflag}}" == ${fileflag} ]; then
-        TEMPFILENAME=${arg:11}
+        TEMPFILENAME=${arg:${#fileflag}}
     elif [ "$arg" == "--help" ]; then
         echo "user may specify the following paths in any order:"
         echo "  
@@ -29,16 +29,16 @@ for arg in "$@"; do
     fi
 done
 
-if [ ! -v "$PYPATH" ]; then
+if [ ! "$PYPATH" ]; then
     PYPATH=$(python -c "import sys; print str(sys.path[-1]) + '/'")
 fi
-if [ ! -v "$LIBPATH" ]; then
+if [ ! "$LIBPATH" ]; then
     LIBPATH=/usr/local/lib/
 fi
-if [ ! -v "$BINPATH" ]; then
+if [ ! "$BINPATH" ]; then
     BINPATH=/usr/local/bin/
 fi
-if [ ! -v "$TEMPFILENAME" ]; then
+if [ ! "$TEMPFILENAME" ]; then
     TEMPFILENAME=pystack.txt.tmp
 fi  
 
