@@ -14,7 +14,7 @@ for arg in "$@"; do
         BINPATH=${arg:${#binflag}}
     elif [ "${arg:0:${#fileflag}}" == ${fileflag} ]; then
         TEMPFILENAME=${arg:${#fileflag}}
-    elif [ "$arg" == "--help" ]; then
+    elif [ "$arg" == "--help" -o "$arg" == "-h" ]; then
         echo "user may specify the following paths in any order:"
         echo "  
         $pyflag         
@@ -44,10 +44,20 @@ fi
 
 echo "#! /bin/bash 
 PYSCRIPT=\$1
-TERM=\$2
+ENGINE=\$2
+TERM=\$3
+
 if [ \"\$PYSCRIPT\" ]; then
     cat \$PYSCRIPT > $TEMPFILENAME 
-    (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"$TEMPFILENAME\" \"\$TERM\")
+    if [ \"\$ENGINE\" == \"-g\" -o \"\$ENGINE\" == \"--google\" ]; then
+        if [ \"$\TERM\" ]; then
+            (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \$ENGINE \"$TEMPFILENAME\" \"\$TERM\")
+        else
+            (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \$ENGINE \"$TEMPFILENAME\")
+        fi
+    else
+        (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"$TEMPFILENAME\" \"\$ENGINE\" )
+    fi
 else 
     python
 fi
