@@ -60,7 +60,7 @@ class Trace(object):
         query_code = []
         for i in range(len(raw_body)):
             for j in range(50):
-                print raw_body[i][j]
+                return None #standin, duh
             #if "<code>" 
         return usr_code
 

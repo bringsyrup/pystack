@@ -1,4 +1,4 @@
-#! /bin/bash
+#! /bin/bash -e
 
 pyflag='--pypath='
 libflag='--libpath='
@@ -43,21 +43,60 @@ if [ ! "$TEMPFILENAME" ]; then
 fi  
 
 echo "#! /bin/bash 
-PYSCRIPT=\$1
-ENGINE=\$2
-TERM=\$3
+# options = -f [file] -s [search] -g -h
 
-if [ \"\$PYSCRIPT\" ]; then
-    cat \$PYSCRIPT > $TEMPFILENAME 
-    if [ \"\$ENGINE\" == \"-g\" -o \"\$ENGINE\" == \"--google\" ]; then
-        if [ \"$\TERM\" ]; then
-            (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \$ENGINE \"$TEMPFILENAME\" \"\$TERM\")
-        else
-            (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \$ENGINE \"$TEMPFILENAME\")
-        fi
-    else
-        (python \$PYSCRIPT 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"$TEMPFILENAME\" \"\$ENGINE\" )
-    fi
+
+usage() { cat << EOF
+    usage: pystack [options]
+
+    pystack is a simple script that can be used to, depending on the arguments 
+    given, find relevent stack-overflow questions from your python code 
+    traceback errors, search google or stack-overflow, or run pep 8.  
+
+    OPTIONS:
+    -h    Show this message
+    -f    Python file to collect tracback errors from
+    -g    Use google instead of stack-overflow
+    -s    Search string for google or stack-overflow
+
+    EXAMPLES:
+    $ pystack -f foo.py -gs \"double list comprehension\" 
+        #queries google search for traceback error and search string, returns urls
+
+    $ pystack -s \"bash conditionals tutorial\" 
+        #queries stack-overflow for search string, returns urls
+    
+    $ pystack -f foo.py 
+        #queries stack-overflow with traceback error, returns urls
+
+EOF
+}
+
+while getopts \"hf:gs:\" OPTION; do
+    case \$OPTION in
+        h)
+            usage
+            exit 2
+            ;;
+        f)
+            FILE=\$OPTARG
+            ;;
+        g)
+            GOOGLE=\"--google\"
+            ;;
+        s)
+            SEARCH=\$OPTARG
+            ;;
+        ?)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+if [ \"\$FILE\" ]; then
+    cat \$FILE > $TEMPFILENAME
+    (python \$FILE 2>&1 | python /usr/local/lib/pystackpy/pystack.py \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\")
 else 
     python
 fi
