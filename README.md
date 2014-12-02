@@ -12,6 +12,6 @@ $ pystack -h    # to see options and some examples
 Of course, you can set your own paths for installation. Type ```./configure --help``` for those options.
 
 ##dependencies
-    -os-x or linux
-    -sys (a python lib that you almost definitely already have)
-    -python2.7 or later but not python3 (dists before 2.7 may work but there is no guarantee)
+  -os-x or linux
+  -sys (a python lib that you almost definitely already have)
+  -python2.7 or later but not python3 (dists before 2.7 may work but there is no guarantee)
