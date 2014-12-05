@@ -80,7 +80,7 @@ class Trace(object):
      
     def getSO(self, search_term): # replace "python" with something relevent to code? blaaaaah
         if self.engine != "google":
-            self.getDiff(self.searchSO(search_term))
+            self.getCode(self.searchSO(search_term))
         else:
             self.searchGoogle(search_term)
 
