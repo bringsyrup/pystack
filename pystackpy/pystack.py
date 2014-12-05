@@ -59,7 +59,6 @@ class Trace(object):
             usr_code = [re.sub('[\n]', '', line).strip(" ") for line in usr_code_fi]
         usr_code_fi.close()
         os.remove(self.temp_file)
-        print type(raw_body[0])
         query_code = []
         for i in range(len(raw_body)):
             for j in range(50):

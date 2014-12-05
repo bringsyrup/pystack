@@ -111,7 +111,7 @@ while getopts \"hf:gs:\" OPTION; do
 done
 
 if [ \"\$FILE\" ] || [ \"\$SEARCH\" ]; then
-    if [ \"\$FILE\" ]; then
+    if [ \"\$FILE\" ] && ! [ \"\$GOOGLE\" ]; then
         cat \$FILE > $TEMPFILENAME
         (python \$FILE 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"--file\" \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\")
     else
