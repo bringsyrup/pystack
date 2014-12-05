@@ -3,7 +3,7 @@ import re
 import stackexchange
 import os
 import argparse
-import google
+#import google
 
 def getErrs(): 
     stderr = []
@@ -46,7 +46,7 @@ class Trace(object):
             return None
         return raw_body
 
-    def getDiff(self, raw_body):
+    def getCode(self, raw_body):
         '''
         called by getSO if StackExchange api is selected
         '''
@@ -62,7 +62,16 @@ class Trace(object):
             for j in range(50):
                 return None #standin, duh
             #if "<code>" 
-        return usr_code
+        so_code=[]
+        for body in raw_body:
+            str(body)
+            x = body.split("code")
+            for b in x:
+                b = b.replace('&gt;','')
+                print "-----------"
+                if "<pre>" not in str(b) and "</pre>" not in str(b):
+                    so_code.append(b)
+        return [usr_code, so_code]
 
     def searchGoogle(self, term):
         for url in google.search(str(self.trace_err + term), stop=self.limit):
@@ -97,7 +106,6 @@ if __name__=="__main__":
         search_term = args.search_term
     else:
         search_term = "python"
-        
     if args.google:
         os.remove(args.temp_file)
         Trace("google", getErrs(), 10).getSO(search_term)
