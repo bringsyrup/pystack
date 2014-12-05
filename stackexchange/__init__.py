@@ -830,7 +830,7 @@ unlike on the actual site, you will receive an error rather than a redirect to t
         return self.build('search', Question, 'questions', kw)
 
     def search_advanced(self, **kw):
-        #kw['body'] = None #this was causing body to be none! why would someone do this.
+        #kw['body'] = None #this causes body to be none. Why would someone do this.
         kw['comments'] = None
         return self.build('search/advanced', Question, 'questions', kw)
 

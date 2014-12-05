@@ -19,8 +19,7 @@ class Trace(object):
         self.engine = engine
         self.trace_err = trace_err
         self.limit = limit
-        if temp_file != None:
-            self.temp_file = temp_file
+        self.temp_file = temp_file
              
     def searchSO(self, term2):
         '''
@@ -29,7 +28,10 @@ class Trace(object):
         user_api_key = '5se*FOHNKmiw3H9miisy8w(('
         so = stackexchange.Site(stackexchange.StackOverflow, app_key = user_api_key, impose_throttling = False)
         so.throttle_stop = False
-        qs = so.search_advanced(q=self.trace_err, tagged=['python'], body=term2, accepted=True)
+        if self.trace_err:
+            qs = so.search_advanced(q=self.trace_err, tagged=['python'], body=term2, accepted=True)
+        else:
+            qs = so.search_advanced(q=term2, tagged=['python'], body=term2, accepted=True)
         ql = list(qs)
         ql.sort(key = lambda x: x.score, reverse=True)
         if self.limit == None:
@@ -42,7 +44,8 @@ class Trace(object):
                 raw_body.append(r) 
         except IndexError:
             print "terms are too tight, no pages found"
-            os.remove(temp_filename)
+            if self.trace_err:
+                os.remove(temp_filename)
             return None
         return raw_body
 
@@ -69,9 +72,12 @@ class Trace(object):
             print url
         return None
      
-    def getSO(self, search_term): # replace "python" with something relevent to code? blaaaaah
+    def getSO(self, search_term=None): # replace "python" with something relevent to code? blaaaaah
         if self.engine != "google":
-            self.getDiff(self.searchSO(search_term))
+            if self.temp_file:
+                self.getDiff(self.searchSO(search_term))
+            else:
+                self.searchSO(search_term)
         else:
             self.searchGoogle(search_term)
 
@@ -87,23 +93,33 @@ if __name__=="__main__":
             nargs = '?',
             help = 'optional search term string!'
             )
-    parser.add_argument('--google', '-g',
+    parser.add_argument('-f', '--file',
+            action = 'store_true',
+            help = 'if present, indicates whether or not to call getErrs()'
+            )
+    parser.add_argument('-g', '--google',
             action = 'store_true',
             help = 'search stack overflows for traceback error using Google Search. Else the StackExchange api is used.'
             )
 
     args = parser.parse_args()
+
     if args.search_term:
         search_term = args.search_term
     else:
         search_term = "python"
+    
+    if args.file:
+        user_errs = getErrs()
+    else:
+        user_errs = ""
+        args.temp_file = None
         
     if args.google:
-        os.remove(args.temp_file)
-        Trace("google", getErrs(), 10).getSO(search_term)
+        Trace("google", user_errs, 10).getSO(search_term)
     else:
         if args.search_term:
-            Trace("stack_exchange", getErrs(), None, args.temp_file).getSO(search_term)
+            Trace("stack_exchange", user_errs, None, args.temp_file).getSO(search_term)
         else:
-            Trace("stack_exchange", getErrs(), 5, args.temp_file).getSO(search_term)
+            Trace("stack_exchange", user_errs, 5, args.temp_file).getSO(search_term)
 

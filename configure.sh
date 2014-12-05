@@ -1,9 +1,9 @@
 #! /bin/bash -e
 
-pyflag='--pypath='
-libflag='--libpath='
-binflag='--binpath='
-fileflag='--filename='
+pyflag="--pypath="
+libflag="--libpath="
+binflag="--binpath="
+fileflag="--filename="
 
 for arg in "$@"; do
     if [ "${arg:0:${#pyflag}}" == ${pyflag} ]; then
@@ -17,12 +17,12 @@ for arg in "$@"; do
     elif [ "$arg" == "--help" -o "$arg" == "-h" ]; then
         echo "user may specify the following paths in any order:"
         echo "  
-        $pyflag         
-        $libflag 
-        $binflag 
-        $fileflag
+        ${pyflag}PATH         
+        ${libflag}PATH
+        ${binflag}PATH
+        ${fileflag}PATH
         "
-        exit 2
+        exit 0
     else
         echo "invalid argument $arg, pystack failed to install"
         exit 1
@@ -31,12 +31,28 @@ done
 
 if [ ! "$PYPATH" ]; then
     PYPATH=$(python -c "import sys; print str(sys.path[-1]) + '/'")
+elif [ ! -d $PYPATH ]; then
+    echo "the user specified PYTHONPATH \"$PYPATH\" does not exist"
+    exit 3
+elif [ "{$PYPATH::-1}" != "/" ]; then
+    PYPATH=${PYPATH}/
+    echo $PYPATH
 fi
 if [ ! "$LIBPATH" ]; then
     LIBPATH=/usr/local/lib/
+elif [ ! -d $LIBPATH ]; then
+    echo "the user specified LIBPATH \"$LIBPATH\" does not exist"
+    exit 3
+elif [ "{$LIBPATH::-1}" != "/" ]; then
+    LIBPATH=${LIPATH}/
 fi
 if [ ! "$BINPATH" ]; then
     BINPATH=/usr/local/bin/
+elif [ ! -d $BINPATH ]; then
+    echo "user specified BINPATH \"$BINPATH\" does not exits"
+    exit 3
+elif [ "{$BINPATH::-1}" != "/" ]; then
+    BINPATH=${BINPATH}/
 fi
 if [ ! "$TEMPFILENAME" ]; then
     TEMPFILENAME=pystack.txt.tmp
@@ -76,7 +92,7 @@ while getopts \"hf:gs:\" OPTION; do
     case \$OPTION in
         h)
             usage
-            exit 2
+            exit 0
             ;;
         f)
             FILE=\$OPTARG
@@ -94,19 +110,40 @@ while getopts \"hf:gs:\" OPTION; do
     esac
 done
 
-if [ \"\$FILE\" ]; then
-    cat \$FILE > $TEMPFILENAME
-    (python \$FILE 2>&1 | python /usr/local/lib/pystackpy/pystack.py \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\")
+if [ \"\$FILE\" ] || [ \"\$SEARCH\" ]; then
+    if [ \"\$FILE\" ]; then
+        cat \$FILE > $TEMPFILENAME
+        (python \$FILE 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"--file\" \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\")
+    else
+        python ${LIBPATH}pystackpy/pystack.py \$GOOGLE \"None\" \"\$SEARCH\"
+    fi
 else 
-    python
+    usage
+    exit 1
 fi
 exit 0" > pystack && echo "populating pystack shell script..."
 
+permissions() {
+    echo "permission denied. try running sudo ./configure"
+    exit 1
+}
+
 if [ ! -x pystack ]; then
     chmod u+x pystack && echo "making pystack executable..."
+    if [ ! -x pystack ]; then
+        permissions
+    fi
 fi
 
-cp -r stackexchange $PYPATH && echo "copying stackexchange api python wrapper to ${PYPATH}..."
-cp -r pystackpy $LIBPATH && echo "copying pystackpy to ${LIBPATH}..."
-mv pystack $BINPATH && echo "moving pystack executable to ${BINPATH}..."
-echo "install was sucessful!" && exit 0
+(
+cp -rf stackexchange $PYPATH && echo "copying stackexchange api python wrapper to ${PYPATH}..." || exit 2
+cp -rf pystackpy $LIBPATH && echo "copying pystackpy lib to ${LIBPATH}..." || exit 2
+mv pystack $BINPATH && echo "moving pystack executable to ${BINPATH}..." || exit 2 
+)
+
+if [ $? == 2 ]; then 
+    permissions
+else
+    echo "install was sucessful!" 
+    exit 0
+fi
