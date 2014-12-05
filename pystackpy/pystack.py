@@ -117,7 +117,6 @@ if __name__=="__main__":
         search_term = args.search_term
     else:
         search_term = "python"
-<<<<<<< HEAD
     
     if args.file:
         user_errs = getErrs()
@@ -125,8 +124,6 @@ if __name__=="__main__":
         user_errs = ""
         args.temp_file = None
         
-=======
->>>>>>> 82bef2aa5496de00d1b2218115f16ed3b8317b23
     if args.google:
         Trace("google", user_errs, 10).getSO(search_term)
     else:
