@@ -3,7 +3,7 @@ import re
 import stackexchange
 import os
 import argparse
-#import google
+import google
 
 def getErrs(): 
     stderr = []
