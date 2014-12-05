@@ -49,7 +49,7 @@ class Trace(object):
             return None
         return raw_body
 
-    def getDiff(self, raw_body):
+    def getCode(self, raw_body):
         '''
         called by getSO if StackExchange api is selected
         '''
@@ -65,7 +65,16 @@ class Trace(object):
             for j in range(50):
                 return None #standin, duh
             #if "<code>" 
-        return usr_code
+        so_code=[]
+        for body in raw_body:
+            str(body)
+            x = body.split("code")
+            for b in x:
+                b = b.replace('&gt;','')
+                print "-----------"
+                if "<pre>" not in str(b) and "</pre>" not in str(b):
+                    so_code.append(b)
+        return [usr_code, so_code]
 
     def searchGoogle(self, term):
         for url in google.search(str(self.trace_err + term), stop=self.limit):
@@ -75,7 +84,7 @@ class Trace(object):
     def getSO(self, search_term=None): # replace "python" with something relevent to code? blaaaaah
         if self.engine != "google":
             if self.temp_file:
-                self.getDiff(self.searchSO(search_term))
+                self.getCode(self.searchSO(search_term))
             else:
                 self.searchSO(search_term)
         else:
@@ -108,6 +117,7 @@ if __name__=="__main__":
         search_term = args.search_term
     else:
         search_term = "python"
+<<<<<<< HEAD
     
     if args.file:
         user_errs = getErrs()
@@ -115,6 +125,8 @@ if __name__=="__main__":
         user_errs = ""
         args.temp_file = None
         
+=======
+>>>>>>> 82bef2aa5496de00d1b2218115f16ed3b8317b23
     if args.google:
         Trace("google", user_errs, 10).getSO(search_term)
     else:
