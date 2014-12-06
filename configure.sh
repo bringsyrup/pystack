@@ -4,23 +4,35 @@ pyflag="--pypath="
 libflag="--libpath="
 binflag="--binpath="
 fileflag="--filename="
+py_short="-p="
+lib_short="-l="
+bin_short="-b="
+file_short="-f="
 
 for arg in "$@"; do
-    if [ "${arg:0:${#pyflag}}" == ${pyflag} ]; then
-        PYPATH=${arg:${#pyflag}}
-    elif [ "${arg:0:${#libflag}}" == ${libflag} ]; then
-        LIBPATH=${arg:${#libflag}}
-    elif [ "${arg:0:${#binflag}}" == ${binflag} ]; then
-        BINPATH=${arg:${#binflag}}
-    elif [ "${arg:0:${#fileflag}}" == ${fileflag} ]; then
-        TEMPFILENAME=${arg:${#fileflag}}
-    elif [ "$arg" == "--help" -o "$arg" == "-h" ]; then
-        echo "user may specify the following paths in any order:"
-        echo "  
-        ${pyflag}PATH         
-        ${libflag}PATH
-        ${binflag}PATH
-        ${fileflag}PATH
+    if [ "${arg:1:1}" = "-" ]; then
+        arg_n="${arg:1:2}=${arg#*=}"
+    else
+        arg_n=$arg
+    fi
+    if [ "${arg_n:0:${#py_short}}" == ${py_short} ]; then
+        PYPATH=${arg_n:${#py_short}}
+    elif [ "${arg_n:0:${#lib_short}}" == ${lib_short} ]; then
+        LIBPATH=${arg_n:${#lib_short}}
+    elif [ "${arg_n:0:${#bin_short}}" == ${bin_short} ]; then
+        BINPATH=${arg_n:${#bin_short}}
+    elif [ "${arg_n:0:${#file_short}}" == ${file_short} ]; then
+        TEMPFILENAME=${arg_n:${#file_short}}
+    elif [ "$arg" == "-h" -o "${arg}" == "--help" ]; then
+        echo "
+        options:
+        
+        -h, --help                     show this message and exit   
+
+        ${py_short}, ${pyflag}PATH             set python path to be used 
+        ${lib_short}, ${libflag}PATH            set lib path to be used
+        ${bin_short}, ${binflag}PATH            set bin path to be used
+        ${file_short}, ${fileflag}PATH           set temp filename to be used for python main
         "
         exit 0
     else
@@ -34,7 +46,7 @@ if [ ! "$PYPATH" ]; then
 elif [ ! -d $PYPATH ]; then
     echo "the user specified PYTHONPATH \"$PYPATH\" does not exist"
     exit 3
-elif [ "{$PYPATH::-1}" != "/" ]; then
+elif [ ! "${PYPATH:${#PYPATH}-1}" == "/" ]; then
     PYPATH=${PYPATH}/
     echo $PYPATH
 fi
@@ -43,15 +55,15 @@ if [ ! "$LIBPATH" ]; then
 elif [ ! -d $LIBPATH ]; then
     echo "the user specified LIBPATH \"$LIBPATH\" does not exist"
     exit 3
-elif [ "{$LIBPATH::-1}" != "/" ]; then
-    LIBPATH=${LIPATH}/
+elif [ ! "${LIBPATH:${#LIBPATH}-1}" == "/" ]; then
+    LIBPATH=${LIBPATH}/
 fi
 if [ ! "$BINPATH" ]; then
     BINPATH=/usr/local/bin/
 elif [ ! -d $BINPATH ]; then
     echo "user specified BINPATH \"$BINPATH\" does not exits"
     exit 3
-elif [ "{$BINPATH::-1}" != "/" ]; then
+elif [ ! "${BINPATH:${#BINPATH}-1}" == "/" ]; then
     BINPATH=${BINPATH}/
 fi
 if [ ! "$TEMPFILENAME" ]; then
