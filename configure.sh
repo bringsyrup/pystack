@@ -4,10 +4,10 @@ pyflag="--pypath="
 libflag="--libpath="
 binflag="--binpath="
 fileflag="--filename="
-py_short="-p="
-lib_short="-l="
-bin_short="-b="
-file_short="-f="
+py_short="-p"
+lib_short="-l"
+bin_short="-b"
+file_short="-f"
 
 for arg in "$@"; do
     if [ "${arg:1:1}" = "-" ]; then
@@ -16,16 +16,16 @@ for arg in "$@"; do
         arg_n=$arg
     fi
     if [ "${arg_n:0:${#py_short}}" == ${py_short} ]; then
-        PYPATH=${arg_n:${#py_short}}
+        PYPATH=${arg_n:${#py_short}+1}
     elif [ "${arg_n:0:${#lib_short}}" == ${lib_short} ]; then
-        LIBPATH=${arg_n:${#lib_short}}
+        LIBPATH=${arg_n:${#lib_short}+1}
     elif [ "${arg_n:0:${#bin_short}}" == ${bin_short} ]; then
-        BINPATH=${arg_n:${#bin_short}}
+        BINPATH=${arg_n:${#bin_short}+1}
     elif [ "${arg_n:0:${#file_short}}" == ${file_short} ]; then
-        TEMPFILENAME=${arg_n:${#file_short}}
+        TEMPFILENAME=${arg_n:${#file_short}+1}
     elif [ "$arg" == "-h" -o "${arg}" == "--help" ]; then
         echo "
-        options:
+        OPTIONS:
         
         -h, --help                     show this message and exit   
 
