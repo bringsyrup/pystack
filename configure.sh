@@ -1,13 +1,9 @@
 #! /bin/bash -e
 
-pyflag="--pypath="
-libflag="--libpath="
-binflag="--binpath="
-fileflag="--filename="
-py_short="-p"
-lib_short="-l"
-bin_short="-b"
-file_short="-f"
+pyflag="--pypath=" && py_short="-p"
+libflag="--libpath=" && lib_short="-l"
+binflag="--binpath=" && bin_short="-b"
+fileflag="--filename=" && file_short="-f"
 
 for arg in "$@"; do
     if [ "${arg:1:1}" = "-" ]; then
