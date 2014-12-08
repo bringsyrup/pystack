@@ -5,21 +5,47 @@ import os
 import argparse
 import google
 
-def getErrs(): 
-    stderr = []
-    #return re.sub('[\n]', '', sys.stdin.readlines()[-1]).strip(' ')
-    for line in sys.stdin.readlines():
-        stderr.append(re.sub('[\n]', '', line).strip(' '))
-    return stderr[-1]
+class Errors(object):
+
+    def __init__(self, temp_file):
+        self.temp_file = temp_file
+
+    def getErrs(self): 
+        stderr = []
+        #return re.sub('[\n]', '', sys.stdin.readlines()[-1]).strip(' ')
+        for line in sys.stdin.readlines():
+            stderr.append(re.sub('[\n]', '', line).strip(' '))
+        return stderr[-1]
+
+    def getCode(self, raw_body):
+        '''
+        called by getSO if StackExchange api is selected and there's a file. move to Errors class soon
+        '''
+        if raw_body == None:
+            print "No search results"
+            return 
+        with open(self.temp_file, 'r') as usr_code_fi:
+            usr_code = [re.sub('[\n]', '', line).strip(" ") for line in usr_code_fi]
+        usr_code_fi.close()
+        os.remove(self.temp_file)
+        so_code=[]
+        for body in raw_body:
+            str(body)
+            x = body.split("code")
+            for b in x:
+                b = b.replace('&gt;','')
+                #print "-----------"
+                if "<pre>" not in str(b) and "</pre>" not in str(b):
+                    so_code.append(b)
+        return [usr_code, so_code]
 
 
-class Trace(object):
+class Search(object):
 
-    def __init__(self, engine, trace_err, limit, temp_file=None):
+    def __init__(self, engine, trace_err, limit):
         self.engine = engine
         self.trace_err = trace_err
         self.limit = limit
-        self.temp_file = temp_file
              
     def searchSO(self, term2):
         '''
@@ -34,7 +60,7 @@ class Trace(object):
             qs = so.search_advanced(q=term2, tagged=['python'], body=term2, accepted=True)
         ql = list(qs)
         ql.sort(key = lambda x: x.score, reverse=True)
-        if self.limit == None:
+        if not self.limit:
             self.limit = len(ql)
         raw_body = list()
         try:
@@ -49,45 +75,21 @@ class Trace(object):
             return None
         return raw_body
 
-    def getCode(self, raw_body):
-        '''
-        called by getSO if StackExchange api is selected
-        '''
-        if raw_body == None:
-            return 
-        with open(self.temp_file, 'r') as usr_code_fi:
-            usr_code = [re.sub('[\n]', '', line).strip(" ") for line in usr_code_fi]
-        usr_code_fi.close()
-        os.remove(self.temp_file)
-        query_code = []
-        for i in range(len(raw_body)):
-            for j in range(50):
-                return None #standin, duh
-            #if "<code>" 
-        so_code=[]
-        for body in raw_body:
-            str(body)
-            x = body.split("code")
-            for b in x:
-                b = b.replace('&gt;','')
-                print "-----------"
-                if "<pre>" not in str(b) and "</pre>" not in str(b):
-                    so_code.append(b)
-        return [usr_code, so_code]
 
     def searchGoogle(self, term):
         for url in google.search(str(self.trace_err + term), stop=self.limit):
             print url
         return None
      
-    def getSO(self, search_term=None): # replace "python" with something relevent to code? blaaaaah
-        if self.engine != "google":
-            if self.temp_file:
-                self.getCode(self.searchSO(search_term))
+    def getSO(self, search_term, userErrs=None): 
+        if self.engine == "google":
+            self.searchGoogle(search_term)
+        else:
+            if userErrs:
+                userErrs.getCode(self.searchSO(search_term))
             else:
                 self.searchSO(search_term)
-        else:
-            self.searchGoogle(search_term)
+
 
 
 if __name__=="__main__":
@@ -109,25 +111,35 @@ if __name__=="__main__":
             action = 'store_true',
             help = 'search stack overflows for traceback error using Google Search. Else the StackExchange api is used.'
             )
-
     args = parser.parse_args()
+
 
     if args.search_term:
         search_term = args.search_term
+        if args.google:
+            limit = 10
+        else:
+            limit = None
     else:
         search_term = "python"
+        limit = 10
     
+    userErrs = Errors(args.temp_file) 
+
     if args.file:
-        user_errs = getErrs()
+        trace_err = userErrs.getErrs()
     else:
-        user_errs = ""
-        args.temp_file = None
+        trace_err = ""
         
+    userSearch = Search(engine='', trace_err=trace_err, limit=limit)
+
     if args.google:
-        Trace("google", user_errs, 10).getSO(search_term)
+        userSearch.engine = "google"
+        userSearch.getSO(search_term)
     else:
+        userSearch.engine = "stack_exchange"
         if args.search_term:
-            Trace("stack_exchange", user_errs, None, args.temp_file).getSO(search_term)
+            userSearch.getSO(search_term)
         else:
-            Trace("stack_exchange", user_errs, 5, args.temp_file).getSO(search_term)
+            userSearch.getSO(search_term, userErrs=userErrs)
 
