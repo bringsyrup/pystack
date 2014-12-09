@@ -90,9 +90,7 @@ class Search(object):
             else:
                 self.searchSO(search_term)
 
-
-
-if __name__=="__main__":
+def main():
     parser = argparse.ArgumentParser(description='pystack')
     parser.add_argument('temp_file',
             type = str, 
@@ -143,3 +141,7 @@ if __name__=="__main__":
         else:
             userSearch.getSO(search_term, userErrs=userErrs)
 
+
+if __name__=="__main__":
+   
+    main()
