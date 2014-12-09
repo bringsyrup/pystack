@@ -76,19 +76,24 @@ class Search(object):
         return raw_body
 
 
-    def searchGoogle(self, term):
+    def searchGoogle(self, term, SO_filter):
+        url_dict = dict()
         for url in google.search(str(self.trace_err + term), stop=self.limit):
-            print url
+            if SO_filter:
+                url_dict[int(''.join([i for i in url if i.isdigit()]))] = ''
+            else:
+                print url
+        if SO_filter:
+            filterResults(url_dict)
         return None
      
     def getSO(self, search_term, userErrs=None): 
         if self.engine == "google":
-            self.searchGoogle(search_term)
+            SO_filter = False
         else:
-            if userErrs:
-                userErrs.getCode(self.searchSO(search_term))
-            else:
-                self.searchSO(search_term)
+            SO_filter = True
+        searchGoogle(search_term, SO_filter)
+        return None
 
 def main():
     parser = argparse.ArgumentParser(description='pystack')
