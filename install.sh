@@ -1,4 +1,6 @@
-#! /bin/bash -e
+#! /bin/bash 
+
+USER=$(whoami)
 
 pyflag="--pypath=" && py_short="-p"
 libflag="--libpath=" && lib_short="-l"
@@ -28,7 +30,7 @@ for arg in "$@"; do
         ${py_short}, ${pyflag}PATH             set python path to be used 
         ${lib_short}, ${libflag}PATH            set lib path to be used
         ${bin_short}, ${binflag}PATH            set bin path to be used
-        ${file_short}, ${fileflag}PATH           set temp filename to be used for python main
+        ${file_short}, ${fileflag}\"FOO\"           set temp filename to be used for python main
         "
         exit 0
     else
@@ -37,10 +39,14 @@ for arg in "$@"; do
     fi
 done
 
+function pathNotFound {
+    echo "the user specified $1 '$2' does not exist"
+}
+
 if [ ! "$PYPATH" ]; then
     PYPATH=$(python -c "import sys; print str(sys.path[-1]) + '/'")
 elif [ ! -d $PYPATH ]; then
-    echo "the user specified PYTHONPATH \"$PYPATH\" does not exist"
+    pathNotFound "python path" "$PYPATH"
     exit 3
 elif [ ! "${PYPATH:${#PYPATH}-1}" == "/" ]; then
     PYPATH=${PYPATH}/
@@ -49,7 +55,7 @@ fi
 if [ ! "$LIBPATH" ]; then
     LIBPATH=/usr/local/lib/
 elif [ ! -d $LIBPATH ]; then
-    echo "the user specified LIBPATH \"$LIBPATH\" does not exist"
+    pathNotFound "library path" "$LIBPATH"
     exit 3
 elif [ ! "${LIBPATH:${#LIBPATH}-1}" == "/" ]; then
     LIBPATH=${LIBPATH}/
@@ -57,7 +63,7 @@ fi
 if [ ! "$BINPATH" ]; then
     BINPATH=/usr/local/bin/
 elif [ ! -d $BINPATH ]; then
-    echo "user specified BINPATH \"$BINPATH\" does not exits"
+    pathNotFound "bin path" "$BINPATH"
     exit 3
 elif [ ! "${BINPATH:${#BINPATH}-1}" == "/" ]; then
     BINPATH=${BINPATH}/
@@ -66,9 +72,14 @@ if [ ! "$TEMPFILENAME" ]; then
     TEMPFILENAME=pystack.txt.tmp
 fi  
 
+
+permissions() {
+    echo "permission denied. try running 'sudo ./configure.sh'"
+    exit 1
+}
+(
 echo "#! /bin/bash 
 # options = -f [file] -s [search] -g -h
-
 
 usage() { cat << EOF
     usage: pystack [options]
@@ -129,21 +140,13 @@ else
     usage
     exit 1
 fi
-exit 0" > pystack && echo "populating pystack shell script..."
+exit 0" > pystack && echo "populating pystack shell script..." || exit 2
 
-permissions() {
-    echo "permission denied. try running sudo ./configure"
-    exit 1
-}
-
+chown $USER pystack || exit 2
 if [ ! -x pystack ]; then
-    chmod u+x pystack && echo "making pystack executable..."
-    if [ ! -x pystack ]; then
-        permissions
-    fi
+    chmod u+x pystack && echo "making pystack executable..." || exit 2
 fi
 
-(
 cp -rf stackexchange $PYPATH && echo "copying stackexchange api python wrapper to ${PYPATH}..." || exit 2
 cp -rf pystackpy $LIBPATH && echo "copying pystackpy lib to ${LIBPATH}..." || exit 2
 mv pystack $BINPATH && echo "moving pystack executable to ${BINPATH}..." || exit 2 

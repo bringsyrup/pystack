@@ -6,10 +6,10 @@ pystack is a cli for finding relevant stack overflow answers to your python erro
 ##usage
 to get pystack on your linux system, clone this repo and follow the code below:
 ```sh
-$ ./configure.sh 	
+$ ./install.sh 	
 $ pystack -h    # to see options and some examples 
 ```
-Of course, you can set your own paths for installation. Type ```./configure --help``` for all that swag.
+Of course, you can set your own paths for installation. Type ```./install.sh --help``` for all that swag.
 
 ##dependencies
   - os-x or linux
