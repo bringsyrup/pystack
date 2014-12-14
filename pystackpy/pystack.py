@@ -28,15 +28,17 @@ class Errors(object):
             usr_code = [re.sub('[\n]', '', line).strip(" ") for line in usr_code_fi]
         usr_code_fi.close()
         os.remove(self.temp_file)
-        so_code=[]
+        so_code=dict()
         for body in raw_body:
-            str(body)
-            x = body.split("code")
+            ln = str()
+            x = str(raw_body[body])
+            x = x.split("code")
             for b in x:
                 b = b.replace('&gt;','')
                 #print "-----------"
-                if "<pre>" not in str(b) and "</pre>" not in str(b):
-                    so_code.append(b)
+                if "<pre>" not in str(b) and "</pre>" not in str(b) and "p>" not in str(b):
+                    ln=ln+str(b)+"\n"
+            so_code[body] = ln.split("\n")                
         return [usr_code, so_code]
 
 
@@ -47,7 +49,7 @@ class Search(object):
         self.trace_err = trace_err
         self.limit = limit
              
-    def searchSO(self, term2):
+    def searchSO(self, term2, noFile=False):
         '''
         called by getSO if StackExchange api is selected
         '''
@@ -56,24 +58,40 @@ class Search(object):
         so.throttle_stop = False
         if self.trace_err:
             qs = so.search_advanced(q=self.trace_err, tagged=['python'], body=term2, accepted=True)
+        elif noFile:
+            print "stuff"
         else:
             qs = so.search_advanced(q=term2, tagged=['python'], body=term2, accepted=True)
-        ql = list(qs)
-        ql.sort(key = lambda x: x.score, reverse=True)
-        if not self.limit:
-            self.limit = len(ql)
-        raw_body = list()
-        try:
-            for i in range(self.limit):
-                print ql[i].url
-                r = so.question(ql[i].id, body=True).body
-                raw_body.append(r) 
-        except IndexError:
-            print "terms are too tight, no pages found"
-            if self.trace_err:
-                os.remove(temp_filename)
+        return list(qs)
+
+
+    def filterResults(self, resultlist):
+        user_api_key = '5se*FOHNKmiw3H9miisy8w(('
+        so = stackexchange.Site(stackexchange.StackOverflow, app_key=user_api_key)
+        if len(str(resultlist[0])) != 8:
+            resultlist.sort(key = lambda x: x.score, reverse=True)
+            if not self.limit:
+                self.limit = len(resultlist)
+            raw_body = {}
+            try:
+                for i in range(self.limit):
+                    r = so.question(resultlist[i].id, body=True).body
+                    raw_body[resultlist[i].id] = r
+            except IndexError:
+                print "terms are too tight, no pages found"
+                if self.trace_err:
+                    os.remove(temp_filename)
+                return None
+            print type(raw_body)
+            return raw_body
+        elif len(str(resultlist[0]))== 8:
+            raw_body = dict()
+            for result in resultlist:
+                r = so.question(result[i], body=True).body
+                raw_body[result[i]] = r
+            return raw_body
+        else:
             return None
-        return raw_body
 
 
     def searchGoogle(self, term, SO_filter):
@@ -86,14 +104,16 @@ class Search(object):
         if SO_filter:
             filterResults(url_dict)
         return None
-     
+
+
     def getSO(self, search_term, userErrs=None): 
         if self.engine == "google":
-            SO_filter = False
+            self.searchGoogle(search_term)
         else:
-            SO_filter = True
-        searchGoogle(search_term, SO_filter)
-        return None
+            if userErrs:
+                userErrs.getCode(self.filterResults(self.searchSO(search_term)))
+            else:
+                self.searchSO(search_term, True)
 
 def main():
     parser = argparse.ArgumentParser(description='pystack')
