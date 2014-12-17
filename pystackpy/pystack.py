@@ -84,7 +84,7 @@ class Search(object):
                 return None
             print type(raw_body)
             return raw_body
-        elif len(str(resultlist[0]))== 8:
+        elif len(str(resultlist[0])) == 8:
             raw_body = dict()
             for result in resultlist:
                 r = so.question(result[i], body=True).body
@@ -94,7 +94,7 @@ class Search(object):
             return None
 
 
-    def searchGoogle(self, term, SO_filter):
+    def searchGoogle(self, term, SO_filter, userErrs):
         url_dict = dict()
         for url in google.search(str(self.trace_err + term), stop=self.limit):
             if SO_filter:
@@ -108,12 +108,11 @@ class Search(object):
 
     def getSO(self, search_term, userErrs=None): 
         if self.engine == "google":
-            self.searchGoogle(search_term)
+            SO_filter = False
         else:
-            if userErrs:
-                userErrs.getCode(self.filterResults(self.searchSO(search_term)))
-            else:
-                self.searchSO(search_term, True)
+            SO_filter = True
+        self.searchGoogle(search_term, SO_filter, userErrs)
+        return None
 
 def main():
     parser = argparse.ArgumentParser(description='pystack')
@@ -134,18 +133,17 @@ def main():
             action = 'store_true',
             help = 'search stack overflows for traceback error using Google Search. Else the StackExchange api is used.'
             )
+    parser.add_argument('-l', '--limit',
+            type=int,
+            action = 'store'
+            )
     args = parser.parse_args()
 
 
     if args.search_term:
         search_term = args.search_term
-        if args.google:
-            limit = 10
-        else:
-            limit = None
     else:
         search_term = "python"
-        limit = 10
     
     userErrs = Errors(args.temp_file) 
 
@@ -154,7 +152,7 @@ def main():
     else:
         trace_err = ""
         
-    userSearch = Search(engine='', trace_err=trace_err, limit=limit)
+    userSearch = Search(engine='', trace_err=trace_err, limit=args.limit)
 
     if args.google:
         userSearch.engine = "google"

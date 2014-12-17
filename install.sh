@@ -8,7 +8,7 @@ binflag="--binpath=" && bin_short="-b"
 fileflag="--filename=" && file_short="-f"
 
 for arg in "$@"; do
-    if [ "${arg:1:1}" = "-" ]; then
+    if [ "${arg:1:1}" == "-" ]; then
         arg_n="${arg:1:2}=${arg#*=}"
     else
         arg_n=$arg
@@ -74,12 +74,12 @@ fi
 
 
 permissions() {
-    echo "permission denied. try running 'sudo ./configure.sh'"
+    echo "permission denied. try running 'sudo ./install.sh'"
     exit 1
 }
 (
 echo "#! /bin/bash 
-# options = -f [file] -s [search] -g -h
+# options = -f [file] -s [search] -l [limit] -g -h 
 
 usage() { cat << EOF
     usage: pystack [options]
@@ -91,23 +91,29 @@ usage() { cat << EOF
     OPTIONS:
     -h    Show this message
     -f    Python file to collect tracback errors from
-    -g    Use google instead of stack-overflow
+    -g    Use google unfiltered. Else, results will be filtered by 
+          stackexchange. If the -f option is also used, results will be 
+          filtered based on the content of the argument file
     -s    Search string for google or stack-overflow
+    -l    result limit, limits the number of output urls to an integer argument.
+          Else, default is 10
 
     EXAMPLES:
     $ pystack -f foo.py -gs \"double list comprehension\" 
-        #queries google search for traceback error and search string, returns urls
+        #queries google search for traceback error and search string, returns 
+        unfiltered google urls
 
     $ pystack -s \"bash conditionals tutorial\" 
         #queries stack-overflow for search string, returns urls
     
-    $ pystack -f foo.py 
-        #queries stack-overflow with traceback error, returns urls
+    $ pystack -f foo.py -l 50
+        #queries google with traceback error, filters results using contents 
+        of foo.py and the Stack-Exchange API, returns up to 50 urls 
 
 EOF
 }
 
-while getopts \"hf:gs:\" OPTION; do
+while getopts \"hf:gs:l:\" OPTION; do
     case \$OPTION in
         h)
             usage
@@ -122,6 +128,9 @@ while getopts \"hf:gs:\" OPTION; do
         s)
             SEARCH=\$OPTARG
             ;;
+        l)
+            LIMIT=\$OPTARG
+            ;;
         ?)
             usage
             exit 1
@@ -129,12 +138,16 @@ while getopts \"hf:gs:\" OPTION; do
     esac
 done
 
+if ! [ \"\$LIMIT\" ]; then
+    LIMIT=10
+fi
+
 if [ \"\$FILE\" ] || [ \"\$SEARCH\" ]; then
-    if [ \"\$FILE\" ] && ! [ \"\$GOOGLE\" ] && ! [ \"\${SEARCH}\" ]; then
+    if ! [ \"\$GOOGLE\" ]; then
         cat \$FILE > $TEMPFILENAME
-        (python \$FILE 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"--file\" \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\")
+        (python \$FILE 2>&1 | python ${LIBPATH}pystackpy/pystack.py \"--file\" \$GOOGLE \"$TEMPFILENAME\" \"\$SEARCH\" \"--limit\" \$LIMIT)
     else
-        python ${LIBPATH}pystackpy/pystack.py \$GOOGLE \"None\" \"\$SEARCH\"
+        python ${LIBPATH}pystackpy/pystack.py \$GOOGLE \"None\" \"\$SEARCH\" \"--limit\" \$LIMIT
     fi
 else 
     usage
