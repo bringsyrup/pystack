@@ -10,13 +10,16 @@ class Errors(object):
     def __init__(self, temp_file):
         self.temp_file = temp_file
 
-    def HarshMethod(self, APIcode):
-        user_code, so_code = self.getCode(APIcode) #so_code is a dictionary {key: val...} ==> {ID: bodyCodeList...}
+    def HarshMethod(self, APIraw):
+        print APIraw
+        try:
+            usr_code, so_code = self.getCode(APIraw) #so_code is a dictionary {key: val...} ==> {ID: bodyCodeList...}
+        except TypeError:
+            return None
         return None
 
     def getErrs(self): 
         stderr = []
-        #return re.sub('[\n]', '', sys.stdin.readlines()[-1]).strip(' ')
         for line in sys.stdin.readlines():
             stderr.append(re.sub('[\n]', '', line).strip(' '))
         return stderr[-1]
@@ -27,7 +30,7 @@ class Errors(object):
         '''
         if raw_body == None:
             print "No search results"
-            return 
+            return None
         with open(self.temp_file, 'r') as usr_code_fi:
             usr_code = [re.sub('[\n]', '', line).strip(" ") for line in usr_code_fi]
         usr_code_fi.close()
@@ -42,6 +45,7 @@ class Errors(object):
                 if "<pre>" not in str(b) and "</pre>" not in str(b) and "p>" not in str(b):
                     ln=ln+str(b)+"\n"
             so_code[body] = ln.split("\n")                
+        print usr_code, so_code
         return usr_code, so_code
 
 
@@ -74,7 +78,7 @@ class Search(object):
             resultlist.sort(key = lambda x: x.score, reverse=True)
             if not self.limit:
                 self.limit = len(resultlist)
-            raw_body = {}
+            raw_body = dict()
             try:
                 for i in range(self.limit):
                     r = so.question(resultlist[i].id, body=True).body
@@ -84,13 +88,11 @@ class Search(object):
                 if self.trace_err:
                     os.remove(temp_filename)
                 return None
-            print type(raw_body)
             return raw_body
         elif len(str(resultlist[0])) == 8:
             raw_body = dict()
             for result in resultlist:
-                r = so.question(result, body=True).body
-                raw_body[result] = r
+                raw_body[result] = so.question(result, body=True).body
             return raw_body
         else:
             return None
@@ -100,7 +102,7 @@ class Search(object):
         id_list = list()
         for url in google.search(str(self.trace_err + term), stop=self.limit):
             if SO_filter:
-                if 'http://stackoverflow.com/questions' in url:
+                if "http://stackoverflow.com/questions" in url:
                     id_list.append(url[35:43])
             else:
                 print url
@@ -156,7 +158,10 @@ def main():
         userSearch.search(search_term)
     else:
         userSearch.engine = "stack_exchange"
-        filtered = userErrs.HarshMethod(userSearch.search(search_term)) 
+        if args.file:
+            userErrs.HarshMethod(userSearch.search(search_term)) 
+        elif args.search:
+            userSearch.
     return None
 
 
