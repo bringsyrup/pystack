@@ -11,9 +11,10 @@ class Errors(object):
         self.temp_file = temp_file
 
     def HarshMethod(self, APIraw):
-        print APIraw
+        #print APIraw
         try:
             usr_code, so_code = self.getCode(APIraw) #so_code is a dictionary {key: val...} ==> {ID: bodyCodeList...}
+            #print usr_code, so_code
         except TypeError:
             return None
         return None
@@ -46,7 +47,6 @@ class Errors(object):
                     if "<pre>" not in str(b) and "</pre>" not in str(b) and "p>" not in str(b):
                         ln=ln+str(b)+"\n"
                 so_code[body] = ln.split("\n")                
-            print usr_code, so_code
             return usr_code, so_code
 
 
@@ -67,7 +67,6 @@ class Search(object):
             return raw_body
         else:
             return None
-
 
     def searchGoogle(self, term, SO_filter):
         id_list = list()
