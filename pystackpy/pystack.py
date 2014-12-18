@@ -10,9 +10,107 @@ class Errors(object):
     def __init__(self, temp_file):
         self.temp_file = temp_file
 
-    def HarshMethod(self, APIcode):
-        user_code, so_code = self.getCode(APIcode) #so_code is a dictionary {key: val...} ==> {ID: bodyCodeList...}
-        return None
+    def checkimp(self, code = []):
+        x = 0
+        package = []
+        for x in range(len(code) - 1):
+            if code[x] == "from":
+                if code[x + 2] == "import":
+                    package.append(code[x + 1])
+            if code[x] == "import":
+                if code[x - 2] == "from":
+                    continue
+                package.append(code[x + 1])
+        return package
+
+    def checkif(self, code = [], checklist = []):
+        x = 0
+        code2 = filter(None, code)
+        for x in range(len(code2) - 1):
+            splitline = string.split(code2[x])
+            a = len(splitline)
+            #print code2[x]
+            #print splitline
+            if not splitline:
+                continue
+            if splitline[0] == 'if':
+                t = list(splitline[a - 1])
+                if t[len(t) - 1] == ":":
+                    checklist[1] = 2
+                    break
+            if splitline[0] == "else:":
+                checklist[1] = 2
+                break
+            if splitline[0] == "elif":
+                checklist[1] = 2
+                break
+        return checklist
+
+
+    def checkcl(self, code = [], checklist = []):
+        x = 0
+        for x in range(len(code) - 1):
+            if code[x] == 'class':
+                t = list(code[x + 1])
+                if t[len(t) - 1] == ':':
+                    checklist[2] = 1
+                    break
+        return checklist
+
+    def checkfor(self, code = [], checklist = []):
+        x = 0 
+        for x in range(len(code) - 1):
+            if code[x] == "for":
+                if code[x + 2] == 'in':
+                    checklist[0] = 2
+                    break
+        return checklist
+
+    def checklist1(self, code = [], checklist = []):
+        x = 0 
+        for x in range(len(code) - 1):
+            if code[x] == "=":
+                t = list(code[x + 1])
+                if t[0] == '[':
+                    checklist[3] = 2
+        return checklist
+
+    def checkstructures(self, code = []):
+        checklist = [0,0,0,0]
+        checklist = self.checkif(code, checklist)
+        checklist = self.checkcl(code, checklist)
+        checklist = self.checkfor(code, checklist)
+        checklist = self.checklist1(code, checklist)
+        return checklist
+
+    def checkVal(self, clist = []):
+        val = 0
+        x = 0
+        for x in range(len(clist) - 1):
+            val = val + clist[x]
+        return val
+
+    def list_code(self):
+        usr_code, so_code = self.getcode(APIcode)
+        list_main = self.checkstructures(usr_code)
+        orig_val = self.checkVal(list_main)
+        IDsim_list = []
+        #sim_list = []
+        for key in so_code.key():
+            code = so_code['key']
+            list_temp = self.checkstructures(code)
+            x = 0
+            simVal = 0
+            for x in range(len(list_main) - 1):
+                if list_main[x] == list_temp[x]:
+                    simVal = simVal + 1
+            IDsim_list.append((key, simVal))
+        return IDsim_list
+
+    def compare(self):
+        IDlist = list_code()
+        sorted(IDlist, key=lambda sim: sim[2])
+
 
     def getErrs(self): 
         stderr = []
