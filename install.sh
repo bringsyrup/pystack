@@ -88,15 +88,19 @@ usage() { cat << EOF
     given, find relevent stack-overflow questions from your python code 
     traceback errors, search google or stack-overflow, or run pep 8.  
 
-    OPTIONS:
+    FLAG OPTIONS:
     -h    Show this message
-    -f    Python file to collect tracback errors from
-    -g    Use google unfiltered. Else, results will be filtered by 
+    -g    Use google unfiltered. Else, results will be filtered by           
           stackexchange. If the -f option is also used, results will be 
           filtered based on the content of the argument file
+
+    ARGUMENT OPTIONS:
+    -f    Python file to collect tracback errors from
     -s    Search string for google or stack-overflow
     -l    result limit, limits the number of output urls to an integer argument.
-          Else, default is 10
+          Else, default is 10. Note: this will not necessarily produce the exact
+          number of requested results due to filtering and weird BeautifulSoup
+          attributes
 
     EXAMPLES:
     $ pystack -f foo.py -gs \"double list comprehension\" 
@@ -139,7 +143,11 @@ while getopts \"hf:gs:l:\" OPTION; do
 done
 
 if ! [ \"\$LIMIT\" ]; then
-    LIMIT=10
+    if [ \"\$GOOGLE\" ]; then
+        LIMIT=10
+    else
+        LIMIT=50
+    fi
 fi
 
 if [ \"\$FILE\" ] || [ \"\$SEARCH\" ]; then
