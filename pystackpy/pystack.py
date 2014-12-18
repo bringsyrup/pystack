@@ -4,6 +4,7 @@ import stackexchange
 import os
 import argparse
 import google
+import string
 
 class Errors(object):
 
@@ -76,7 +77,7 @@ class Errors(object):
                     checklist[3] = 2
         return checklist
 
-    def checkstructures(self, code = []):
+    def checkStructures(self, code = []):
         checklist = [0,0,0,0]
         checklist = self.checkif(code, checklist)
         checklist = self.checkcl(code, checklist)
@@ -91,15 +92,15 @@ class Errors(object):
             val = val + clist[x]
         return val
 
-    def list_code(self):
-        usr_code, so_code = self.getcode(APIcode)
-        list_main = self.checkstructures(usr_code)
+    def listCode(self, APIcode):
+        usr_code, so_code = self.getCode(APIcode)
+        list_main = self.checkStructures(usr_code)
         orig_val = self.checkVal(list_main)
         IDsim_list = []
         #sim_list = []
-        for key in so_code.key():
-            code = so_code['key']
-            list_temp = self.checkstructures(code)
+        for key in so_code.keys():
+            code = so_code[key]
+            list_temp = self.checkStructures(code)
             x = 0
             simVal = 0
             for x in range(len(list_main) - 1):
@@ -108,12 +109,14 @@ class Errors(object):
             IDsim_list.append((key, simVal))
         return IDsim_list
 
-    def compare(self):
-        IDlist = list_code()
+    def compare(self, APIcode):
+        IDlist = self.listCode(APIcode)
         sorted(IDlist, key=lambda sim: sim[1])
-        for x in range(1, self.limit + 1):
-            print 'www.stackoverflow.com/questions/' + str(IDlist[-x][0])
-
+        try:
+            for x in range(1, self.limit):
+                print 'www.stackoverflow.com/questions/' + str(IDlist[-x][0])
+        except IndexError:
+            pass
 
     def getErrs(self): 
         stderr = []
@@ -222,9 +225,12 @@ def main():
     if args.google:
         userSearch.engine = "google"
         userSearch.search(search_term)
+    elif args.search and not args.file:
+        userSearch.engine = "google"
+        userSearch.search(search_term)
     else:
         userSearch.engine = "stack_exchange"
-        userErrs.HarshMethod(userSearch.search(search_term)) 
+        userErrs.compare(userSearch.search(search_term)) 
     return None
 
 
