@@ -89,22 +89,23 @@ class Search(object):
         elif len(str(resultlist[0])) == 8:
             raw_body = dict()
             for result in resultlist:
-                r = so.question(result[i], body=True).body
-                raw_body[result[i]] = r
+                r = so.question(result, body=True).body
+                raw_body[result] = r
             return raw_body
         else:
             return None
 
 
     def searchGoogle(self, term, SO_filter):
-        url_dict = dict()
+        id_list = list()
         for url in google.search(str(self.trace_err + term), stop=self.limit):
             if SO_filter:
-                url_dict[int(''.join([i for i in url if i.isdigit()]))] = ''
+                if 'http://stackoverflow.com/questions' in url:
+                    id_list.append(url[35:43])
             else:
                 print url
         if SO_filter:
-            filterResults(url_dict)
+            self.filterResults(id_list)
         return None
 
 
