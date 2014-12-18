@@ -225,7 +225,7 @@ def main():
     if args.google:
         userSearch.engine = "google"
         userSearch.search(search_term)
-    elif args.search and not args.file:
+    elif args.search_term and not args.file:
         userSearch.engine = "google"
         userSearch.search(search_term)
     else:
