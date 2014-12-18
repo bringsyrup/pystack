@@ -158,10 +158,7 @@ def main():
         userSearch.search(search_term)
     else:
         userSearch.engine = "stack_exchange"
-        if args.file:
-            userErrs.HarshMethod(userSearch.search(search_term)) 
-        elif args.search:
-            userSearch.
+        userErrs.HarshMethod(userSearch.search(search_term)) 
     return None
 
 
