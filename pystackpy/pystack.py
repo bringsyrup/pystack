@@ -109,7 +109,9 @@ class Errors(object):
 
     def compare(self):
         IDlist = list_code()
-        sorted(IDlist, key=lambda sim: sim[2])
+        sorted(IDlist, key=lambda sim: sim[1])
+        for x in range():
+
 
     def getErrs(self): 
         stderr = []
