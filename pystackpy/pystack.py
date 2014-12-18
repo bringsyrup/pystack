@@ -7,8 +7,9 @@ import google
 
 class Errors(object):
 
-    def __init__(self, temp_file):
+    def __init__(self, temp_file, limit):
         self.temp_file = temp_file
+        self.limit = limit
 
     def checkimp(self, code = []):
         x = 0
@@ -110,7 +111,8 @@ class Errors(object):
     def compare(self):
         IDlist = list_code()
         sorted(IDlist, key=lambda sim: sim[1])
-        for x in range():
+        for x in range(1, self.limit + 1):
+            print 'www.stackoverflow.com/questions/' + str(IDlist[-x][0])
 
 
     def getErrs(self): 
@@ -211,7 +213,7 @@ def main():
         search_term = args.search_term
     else:
         search_term = "python"
-    userErrs = Errors(args.temp_file)
+    userErrs = Errors(args.temp_file, args.limit)
     if args.file:
         trace_err = userErrs.getErrs()
     else:
