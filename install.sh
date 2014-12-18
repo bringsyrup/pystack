@@ -143,7 +143,11 @@ while getopts \"hf:gs:l:\" OPTION; do
 done
 
 if ! [ \"\$LIMIT\" ]; then
-    LIMIT=10
+    if [ \"\$GOOGLE\" ]; then
+        LIMIT=10
+    else
+        LIMT=50
+    fi
 fi
 
 if [ \"\$FILE\" ] || [ \"\$SEARCH\" ]; then
