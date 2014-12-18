@@ -146,7 +146,7 @@ if ! [ \"\$LIMIT\" ]; then
     if [ \"\$GOOGLE\" ]; then
         LIMIT=10
     else
-        LIMT=50
+        LIMIT=50
     fi
 fi
 
