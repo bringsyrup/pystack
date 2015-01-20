@@ -163,7 +163,7 @@ else
 fi
 exit 0" > pystack && echo "populating pystack shell script..." || exit 2
 
-chown $USER pystack || exit 2
+chown $USER:$USER pystack || exit 2
 if [ ! -x pystack ]; then
     chmod u+x pystack && echo "making pystack executable..." || exit 2
 fi
